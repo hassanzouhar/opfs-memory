@@ -49,8 +49,8 @@ Create a `config.json` file in the project root (optional, will use defaults if 
 Build and run using Docker:
 
 ```bash
-docker build -t mcp-memory .
-docker run -v $(pwd)/memory.jsonl:/app/memory.jsonl mcp-memory
+docker build -t mcp/memory .
+docker run -v $(pwd)/memory.jsonl:/app/memory.jsonl mcp/memory
 ```
 
 ## Usage
