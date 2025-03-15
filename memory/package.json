@@ -1,0 +1,27 @@
+{
+  "name": "agent-memory",
+  "version": "1.1.0",
+  "description": "MCP server for enabling memory for Claude through a knowledge graph",
+  "type": "module",
+  "main": "./dist/index.js",
+  "bin": {
+    "mcp-server-memory": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc --project tsconfig.json && shx chmod +x ./dist/*.js",
+    "prepare": "npm run build",
+    "watch": "tsc --project tsconfig.json --watch"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.7.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "shx": "^0.3.4",
+    "typescript": "^5.6.2"
+  },
+  "keywords": []
+}
