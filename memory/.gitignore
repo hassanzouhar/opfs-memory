@@ -29,4 +29,6 @@ yarn-error.log*
 
 # Memory files
 memory.jsonl
-test-memory.jsonl 
+test-memory.jsonl
+
+**/.DS_Store 

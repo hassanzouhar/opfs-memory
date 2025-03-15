@@ -191,16 +191,21 @@ export class KnowledgeGraphManager {
     await this.saveGraph(graph);
   }
 
-  async readGraph(
-    pagination: PaginationOptions = { offset: 0, limit: 1000 },
-    filter: FilterOptions = {}
-  ): Promise<PaginatedResponse<KnowledgeGraph>> {
-    const graph = await this.loadGraph();
+  private applyPagination<T>(items: T[], pagination: PaginationOptions): T[] {
+    return items.slice(
+      pagination.offset,
+      pagination.offset + pagination.limit
+    );
+  }
+
+  private applyFilters(
+    entities: Entity[],
+    relations: Relation[],
+    filter: FilterOptions
+  ): { filteredEntities: Entity[]; filteredRelations: Relation[] } {
+    let filteredEntities = entities;
+    let filteredRelations = relations;
     
-    let filteredEntities = graph.entries;
-    let filteredRelations = graph.relations;
-    
-    // Apply filters
     if (filter.entityTypes?.length) {
       filteredEntities = filteredEntities.filter(e => filter.entityTypes!.includes(e.entityType));
     }
@@ -236,22 +241,26 @@ export class KnowledgeGraphManager {
       filteredRelations = filteredRelations.filter(r => new Date(r.updatedAt) <= toDate);
     }
     
-    // Apply pagination
+    return { filteredEntities, filteredRelations };
+  }
+
+  async readGraph(
+    pagination: PaginationOptions = { offset: 0, limit: 1000 },
+    filter: FilterOptions = {}
+  ): Promise<PaginatedResponse<KnowledgeGraph>> {
+    const graph = await this.loadGraph();
+    
+    const { filteredEntities, filteredRelations } = this.applyFilters(
+      graph.entries,
+      graph.relations,
+      filter
+    );
+    
     const totalEntities = filteredEntities.length;
     const totalRelations = filteredRelations.length;
     
-    const paginatedEntities = filteredEntities.slice(
-      pagination.offset,
-      pagination.offset + pagination.limit
-    );
-    
-    const paginatedRelations = filteredRelations.slice(
-      pagination.offset,
-      pagination.offset + pagination.limit
-    );
-    
-    const hasMoreEntities = pagination.offset + pagination.limit < totalEntities;
-    const hasMoreRelations = pagination.offset + pagination.limit < totalRelations;
+    const paginatedEntities = this.applyPagination(filteredEntities, pagination);
+    const paginatedRelations = this.applyPagination(filteredRelations, pagination);
     
     return {
       items: {
@@ -259,8 +268,8 @@ export class KnowledgeGraphManager {
         relations: paginatedRelations
       },
       total: Math.max(totalEntities, totalRelations),
-      hasMore: hasMoreEntities || hasMoreRelations,
-      nextOffset: (hasMoreEntities || hasMoreRelations) ? pagination.offset + pagination.limit : undefined
+      hasMore: Math.max(totalEntities, totalRelations) > (pagination.offset + pagination.limit),
+      nextOffset: pagination.offset + pagination.limit
     };
   }
 
