@@ -20,4 +20,4 @@ RUN npm ci --omit=dev
 
 ENV NODE_ENV=production
 
-ENTRYPOINT ["node", "dist/index.js"]
+CMD ["node", "dist/index.js"]
